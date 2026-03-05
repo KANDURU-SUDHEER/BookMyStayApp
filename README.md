@@ -1,1 +1,4 @@
 # BookMyStayApp
+
+Project Description
+This Java implementation demonstrates the core principles of Object-Oriented Programming by modeling a hotel room system through inheritance and abstraction. By utilizing an abstract Room base class and specialized subclasses—SingleRoom, DoubleRoom, and SuiteRoom—the program ensures a consistent structure for managing room-specific data like bed counts, pricing, and square footage. This version (2.0) focuses on Static Availability, providing a foundational look at how to initialize domain models and track inventory using simple variables before moving toward more complex, centralized management systems.
