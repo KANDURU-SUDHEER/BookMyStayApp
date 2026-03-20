@@ -1,12 +1,12 @@
-Project: Room Allocation & Confirmation ServiceOverview
-This project implements Use Case 6: Reservation Confirmation & Room Allocation. It transitions from simple "intent" to "confirmation" by assigning unique, non-duplicable room IDs to guests based on their position in the booking queue.
+Project: Add-On Service SelectionOverview
+This project implements Use Case 7: Add-On Service Selection. It allows guests with confirmed reservations to customize their stay by adding optional services like Spa treatments, Breakfast, or Airport Pickups. The system automatically tracks these selections and calculates the additional costs per reservation.
 
 Key Features
 
-* Unique Room ID Generation: Automatically creates IDs like Single-1, Single-2, and Suite-1.
-* Double-Booking Prevention: Uses a Set to track every assigned ID, ensuring no two guests ever get the same room.
-* Immediate Inventory Update: Conceptually triggers an inventory decrement as soon as a room is successfully allocated.
-* Sequential Processing: Integrates with a FIFO (First-In-First-Out) queue to ensure fair processing.
+* Service Personalization: Enables adding multiple extra services to a specific Reservation ID.
+* Dynamic Cost Calculation: Automatically sums up the costs of all selected services for a guest.
+* Flexible Data Mapping: Uses a HashMap to link a single reservation ID to a List of multiple selected services.
+* Pre-defined Examples: Includes standard hospitality services like Spa ($1000.0) and Breakfast ($500.0).
 
 How to Run
 
@@ -20,19 +20,18 @@ javac BookMyStayApp.java
 java BookMyStayApp
 
 Expected Output
-The program will display confirmed bookings with their unique IDs:
+The program will display the accumulated costs for a specific reservation:
 
-Room Allocation Processing
+Add-On Service Selection
 
-Booking confirmed for Guest: Abhi, Room ID: Single-1
-Booking confirmed for Guest: Subha, Room ID: Single-2
-Booking confirmed for Guest: Vanmathi, Room ID: Suite-1
+Reservation ID: Single-1
+Total Add-On Cost: 1500.0
+
 
 Technical Details
 
-* Version: 6.0
-* Core Logic: RoomAllocationService
-* Data Structure: HashSet (for uniqueness) and HashMap (for type counting).
-
+* Version: 7.0
+* Core Logic: AddOnServiceManager
+* Data Structures: HashMap<String, List<AddOnService>>
 
 
