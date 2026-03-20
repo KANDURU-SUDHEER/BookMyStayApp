@@ -1,47 +1,109 @@
 /**
  * =========================================================================
- * MAIN CLASS - UseCase1HotelBookingApp
+ * HOTEL BOOKING MANAGEMENT SYSTEM - USE CASE 2 (COMPLETE)
  * =========================================================================
  *
- * Use Case 1: Application Entry & Welcome Message
- *
  * Description:
- * This class represents the entry point of the
- * Hotel Booking Management System.
+ * This single runnable file contains the base Room model, specific
+ * room implementations, and the main initialization logic.
  *
- * At this stage, the application:
- * - Starts execution from the main() method
- * - Displays a welcome message to the user
- * - Confirms that the system has started successfully
- *
- * No business logic, data structures, or user input
- * is implemented in this use case.
- *
- * The goal is to establish a clear and predictable
- * application startup point.
- *
- * @author KANDURU-SUDHEER
- * @version 1.0
+ * Version: 2.1
+ * Author: KANDURU-SUDHEER
  */
-public class BookMyStayApp {
+
+/**
+ * --- ABSTRACT BASE CLASS ---
+ * Represents a generic hotel room with core attributes.
+ * Inventory logic is excluded as per specifications.
+ */
+abstract class Room {
+    protected int numberOfBeds;     // Number of beds in the room
+    protected int squareFeet;       // Total size in sqft
+    protected double pricePerNight; // Daily rate
 
     /**
-     * Application entry point.
-     *
-     * This method is the first method executed
-     * when the program is launched by the JVM.
-     *
-     * @param args Command-line arguments
+     * Constructor for child classes to initialize attributes.
      */
-    public static void main(String[] args) {
-        // Displays a welcome message to the user
-        System.out.println("Welcome to the Hotel Booking Management System!");
+    public Room(int numberOfBeds, int squareFeet, double pricePerNight) {
+        this.numberOfBeds = numberOfBeds;
+        this.squareFeet = squareFeet;
+        this.pricePerNight = pricePerNight;
+    }
 
-        // Confirms that the system has started successfully
-        System.out.println("System started successfully.");
+    /**
+     * Prints the room details to the console in the required format.
+     */
+    public void displayRoomDetails() {
+        System.out.println("Beds: " + numberOfBeds);
+        System.out.println("Size: " + squareFeet + " sqft");
+        System.out.println("Price per night: " + pricePerNight);
     }
 }
 
+/**
+ * --- CONCRETE CLASS: SingleRoom ---
+ * Predefines values for a single room type.
+ */
+class SingleRoom extends Room {
+    public SingleRoom() {
+        super(1, 250, 1500.0);
+    }
+}
 
+/**
+ * --- CONCRETE CLASS: DoubleRoom ---
+ * Predefines values for a double room type.
+ */
+class DoubleRoom extends Room {
+    public DoubleRoom() {
+        super(2, 400, 2500.0);
+    }
+}
 
+/**
+ * --- CONCRETE CLASS: SuiteRoom ---
+ * Predefines values for a suite room type.
+ */
+class SuiteRoom extends Room {
+    public SuiteRoom() {
+        super(3, 750, 5000.0);
+    }
+}
 
+/**
+ * --- MAIN APPLICATION CLASS ---
+ * Filename: UseCase2RoomInitialization.java
+ */
+public class BookMyStayApp {
+
+    public static void main(String[] args) {
+
+        // Step 1: Initialize specific room objects using domain models
+        SingleRoom single = new SingleRoom();
+        DoubleRoom doubleRoom = new DoubleRoom();
+        SuiteRoom suite = new SuiteRoom();
+
+        // Step 2: Set static availability counts as per the provided image
+        int singleRoomAvailability = 5;
+        int doubleRoomAvailability = 3;
+        int suiteRoomAvailability = 2;
+
+        // Step 3: Display output matching the requested formatting
+        System.out.println("Hotel Room Initialization\n");
+
+        // Single Room section
+        System.out.println("Single Room:");
+        single.displayRoomDetails();
+        System.out.println("Available: " + singleRoomAvailability + "\n");
+
+        // Double Room section
+        System.out.println("Double Room:");
+        doubleRoom.displayRoomDetails();
+        System.out.println("Available: " + doubleRoomAvailability + "\n");
+
+        // Suite Room section
+        System.out.println("Suite Room:");
+        suite.displayRoomDetails();
+        System.out.println("Available: " + suiteRoomAvailability);
+    }
+}
