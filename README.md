@@ -1,15 +1,16 @@
-Project: FIFO Booking Request QueueOverview
-This project implements Use Case 5: Booking Request (FIFO). It focuses on the "First-Come, First-Served" principle for hotel reservations. By using a Queue data structure, the system ensures that guest requests are processed fairly in the exact order they were received.
+Project: Room Allocation & Confirmation ServiceOverview
+This project implements Use Case 6: Reservation Confirmation & Room Allocation. It transitions from simple "intent" to "confirmation" by assigning unique, non-duplicable room IDs to guests based on their position in the booking queue.
 
 Key Features
 
-* Intent Capture: The Reservation class captures guest names and room types without immediately deducting inventory.
-* Fair Allocation: Uses a Queue (LinkedList implementation) to manage requests.
-* FIFO Logic: Implements addRequest (enqueue) and getNextRequest (dequeue) to maintain a strict processing order.
+* Unique Room ID Generation: Automatically creates IDs like Single-1, Single-2, and Suite-1.
+* Double-Booking Prevention: Uses a Set to track every assigned ID, ensuring no two guests ever get the same room.
+* Immediate Inventory Update: Conceptually triggers an inventory decrement as soon as a room is successfully allocated.
+* Sequential Processing: Integrates with a FIFO (First-In-First-Out) queue to ensure fair processing.
 
 How to Run
 
-1. Requirement: Ensure you have Java (JDK) installed.
+1. Requirement: Java JDK installed.
 2. Compile:
 
 javac BookMyStayApp.java
@@ -18,20 +19,20 @@ javac BookMyStayApp.java
 
 java BookMyStayApp
 
-
 Expected Output
-The program will simulate the sequential processing of guest requests:
+The program will display confirmed bookings with their unique IDs:
 
-Booking Request Queue
-Processing booking for Guest: Abhi, Room Type: Single
-Processing booking for Guest: Subha, Room Type: Double
-Processing booking for Guest: Vanmathi, Room Type: Suite
+Room Allocation Processing
+
+Booking confirmed for Guest: Abhi, Room ID: Single-1
+Booking confirmed for Guest: Subha, Room ID: Single-2
+Booking confirmed for Guest: Vanmathi, Room ID: Suite-1
 
 Technical Details
 
-* Version: 5.0
-* Data Structure: java.util.Queue
-* Pattern: First-In-First-Out (FIFO)
+* Version: 6.0
+* Core Logic: RoomAllocationService
+* Data Structure: HashSet (for uniqueness) and HashMap (for type counting).
 
 
 
