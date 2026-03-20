@@ -1,109 +1,119 @@
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * =========================================================================
- * HOTEL BOOKING MANAGEMENT SYSTEM - USE CASE 2 (COMPLETE)
- * =========================================================================
+ * CLASS - Room
+ * Use Case 3: Centralized Room Inventory Management
  *
  * Description:
- * This single runnable file contains the base Room model, specific
- * room implementations, and the main initialization logic.
+ * Represents a specific type of hotel room.
+ * This class holds the static characteristics of a room
+ * which are referenced by the inventory system.
  *
- * Version: 2.1
- * Author: KANDURU-SUDHEER
+ * @author [Your Name/Student ID]
+ * @version 3.1
  */
+class Room {
+    private String type;
+    private int beds;
+    private int sizeSqft;
+    private double pricePerNight;
 
-/**
- * --- ABSTRACT BASE CLASS ---
- * Represents a generic hotel room with core attributes.
- * Inventory logic is excluded as per specifications.
- */
-abstract class Room {
-    protected int numberOfBeds;     // Number of beds in the room
-    protected int squareFeet;       // Total size in sqft
-    protected double pricePerNight; // Daily rate
-
-    /**
-     * Constructor for child classes to initialize attributes.
-     */
-    public Room(int numberOfBeds, int squareFeet, double pricePerNight) {
-        this.numberOfBeds = numberOfBeds;
-        this.squareFeet = squareFeet;
+    public Room(String type, int beds, int sizeSqft, double pricePerNight) {
+        this.type = type;
+        this.beds = beds;
+        this.sizeSqft = sizeSqft;
         this.pricePerNight = pricePerNight;
     }
 
+    // Getters to provide data to the Inventory Status
+    public String getType() { return type; }
+    public int getBeds() { return beds; }
+    public int getSizeSqft() { return sizeSqft; }
+    public double getPricePerNight() { return pricePerNight; }
+}
+
+/**
+ * CLASS - RoomInventory
+ * Use Case 3: Centralized Room Inventory Management
+ *
+ * Description:
+ * This class acts as the single source of truth
+ * for room availability in the hotel.
+ *
+ * Room pricing and characteristics are obtained
+ * from Room objects, not duplicated here.
+ *
+ * @author [Your Name/Student ID]
+ * @version 3.1
+ */
+class RoomInventory {
+    // Encapsulated map to ensure data integrity
+    private Map<String, Integer> roomAvailability;
+
+    public RoomInventory() {
+        this.roomAvailability = new HashMap<>();
+        initializeInventory();
+    }
+
     /**
-     * Prints the room details to the console in the required format.
+     * Sets initial availability counts for the hotel.
      */
-    public void displayRoomDetails() {
-        System.out.println("Beds: " + numberOfBeds);
-        System.out.println("Size: " + squareFeet + " sqft");
-        System.out.println("Price per night: " + pricePerNight);
+    private void initializeInventory() {
+        roomAvailability.put("Single Room", 5);
+        roomAvailability.put("Double Room", 3);
+        roomAvailability.put("Suite Room", 2);
+    }
+
+    public Map<String, Integer> getRoomAvailability() {
+        return roomAvailability;
+    }
+
+    public void updateAvailability(String roomType, int count) {
+        roomAvailability.put(roomType, count);
     }
 }
 
 /**
- * --- CONCRETE CLASS: SingleRoom ---
- * Predefines values for a single room type.
- */
-class SingleRoom extends Room {
-    public SingleRoom() {
-        super(1, 250, 1500.0);
-    }
-}
-
-/**
- * --- CONCRETE CLASS: DoubleRoom ---
- * Predefines values for a double room type.
- */
-class DoubleRoom extends Room {
-    public DoubleRoom() {
-        super(2, 400, 2500.0);
-    }
-}
-
-/**
- * --- CONCRETE CLASS: SuiteRoom ---
- * Predefines values for a suite room type.
- */
-class SuiteRoom extends Room {
-    public SuiteRoom() {
-        super(3, 750, 5000.0);
-    }
-}
-
-/**
- * --- MAIN APPLICATION CLASS ---
- * Filename: UseCase2RoomInitialization.java
+ * CLASS - UseCase3InventorySetup
+ * Use Case 3: Centralized Room Inventory Management
+ *
+ * Description:
+ * Driver class to demonstrate the setup of the room inventory.
+ * Coordinates between Room objects and the Inventory manager.
+ *
+ * @author [Your Name/Student ID]
+ * @version 3.1
  */
 public class BookMyStayApp {
 
     public static void main(String[] args) {
+        // Instantiate Room objects with specific characteristics
+        Room single = new Room("Single Room", 1, 250, 1500.0);
+        Room doubleRm = new Room("Double Room", 2, 400, 2500.0);
+        Room suite = new Room("Suite Room", 3, 750, 5000.0);
 
-        // Step 1: Initialize specific room objects using domain models
-        SingleRoom single = new SingleRoom();
-        DoubleRoom doubleRoom = new DoubleRoom();
-        SuiteRoom suite = new SuiteRoom();
+        // Initialize the centralized inventory manager
+        RoomInventory inventory = new RoomInventory();
+        Map<String, Integer> currentCounts = inventory.getRoomAvailability();
 
-        // Step 2: Set static availability counts as per the provided image
-        int singleRoomAvailability = 5;
-        int doubleRoomAvailability = 3;
-        int suiteRoomAvailability = 2;
+        // Print the final Inventory Status report
+        System.out.println("Hotel Room Inventory Status\n");
 
-        // Step 3: Display output matching the requested formatting
-        System.out.println("Hotel Room Initialization\n");
+        displayRoomStatus(single, currentCounts.get(single.getType()));
+        displayRoomStatus(doubleRm, currentCounts.get(doubleRm.getType()));
+        displayRoomStatus(suite, currentCounts.get(suite.getType()));
+    }
 
-        // Single Room section
-        System.out.println("Single Room:");
-        single.displayRoomDetails();
-        System.out.println("Available: " + singleRoomAvailability + "\n");
-
-        // Double Room section
-        System.out.println("Double Room:");
-        doubleRoom.displayRoomDetails();
-        System.out.println("Available: " + doubleRoomAvailability + "\n");
-
-        // Suite Room section
-        System.out.println("Suite Room:");
-        suite.displayRoomDetails();
-        System.out.println("Available: " + suiteRoomAvailability);
+    /**
+     * Formats the output for each room type based on the provided requirements.
+     */
+    private static void displayRoomStatus(Room room, int count) {
+        System.out.println(room.getType() + ":");
+        System.out.println("Beds: " + room.getBeds());
+        System.out.println("Size: " + room.getSizeSqft() + " sqft");
+        System.out.println("Price per night: " + room.getPricePerNight());
+        System.out.println("Available Rooms: " + count);
+        System.out.println();
     }
 }
