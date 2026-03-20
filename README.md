@@ -1,30 +1,9 @@
-UseCase1HotelBookingApp
-A simple Java-based entry point for the Hotel Booking Management System. This is the first module of the application, designed to establish a clean startup process.
+Hotel Room Initialization
+This Java application serves as the core foundation for a Hotel Booking Management System, focusing on the structural implementation of various room types. 
+By utilizing an abstract base class and specialized subclasses, the system creates a standardized model for Single, Double, and Suite rooms, each with predefined attributes such as bed count, square footage, and nightly rates. 
+This object-oriented approach ensures that the application maintains a high degree of consistency and scalability as new room categories are introduced.
+The current version (v2.1) demonstrates static availability management by simulating inventory through localized variables. 
+While it successfully displays formatted room details and real-time availability counts to the console, it is specifically designed to highlight the transition from basic domain modeling to centralized logic. 
+This setup prepares the architecture for future modules, such as a Centralized Inventory Manager, which will eventually handle dynamic room booking and real-time updates across the entire system.
 
-Getting Started
-This application requires the Java Development Kit (JDK) installed on your machine.
-1. Compilation
-   Open your terminal or command prompt and navigate to the directory containing the file. Run the following command:
-
-javac UseCase1HotelBookingApp.java
-
-2. Execution
-   Run the compiled class with:
-
-java UseCase1HotelBookingApp
-
-Project Overview
-
-* Purpose: Application entry and startup verification.
-* Key Features:
-* Initializes the system via the main() method.
-    * Displays a welcome message.
-    * Confirms successful system launch.
-* Constraints: No business logic or data structures are implemented in this version.
-
-👤 Author
-
-* Developer
-* Version: 1.0
- 
 
