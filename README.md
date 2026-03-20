@@ -1,23 +1,37 @@
-Project Overview
-The Room Search & Availability Check module is a core component of the BookMyStay application, designed to provide guests with a seamless way to browse available accommodations.
-By integrating real-time inventory tracking with detailed room descriptions and pricing, the system ensures that users only see options that are currently in stock. 
-This module follows a strict "read-only" architecture, meaning it retrieves and displays information from the central database without risking accidental data modification during the search process.
-Technical Implementation
-From a technical standpoint, the application leverages a decoupled design where room attributes (like pricing and descriptions) are managed separately from their physical availability counts.
-This is achieved through the RoomSearchService, which queries a dynamic RoomInventory map to validate stock levels before presenting details to the user via the Room objects.
-This approach not only ensures data integrity but also provides a scalable foundation for adding more complex features in the future, such as date-range filtering or amenity-based sorting.
+Project: FIFO Booking Request QueueOverview
+This project implements Use Case 5: Booking Request (FIFO). It focuses on the "First-Come, First-Served" principle for hotel reservations. By using a Queue data structure, the system ensures that guest requests are processed fairly in the exact order they were received.
+
+Key Features
+
+* Intent Capture: The Reservation class captures guest names and room types without immediately deducting inventory.
+* Fair Allocation: Uses a Queue (LinkedList implementation) to manage requests.
+* FIFO Logic: Implements addRequest (enqueue) and getNextRequest (dequeue) to maintain a strict processing order.
+
+How to Run
+
+1. Requirement: Ensure you have Java (JDK) installed.
+2. Compile:
+
+javac BookMyStayApp.java
+
+3. Execute:
+
+java BookMyStayApp
 
 
+Expected Output
+The program will simulate the sequential processing of guest requests:
 
+Booking Request Queue
+Processing booking for Guest: Abhi, Room Type: Single
+Processing booking for Guest: Subha, Room Type: Double
+Processing booking for Guest: Vanmathi, Room Type: Suite
 
+Technical Details
 
-
-
-
-
-
-
-
+* Version: 5.0
+* Data Structure: java.util.Queue
+* Pattern: First-In-First-Out (FIFO)
 
 
 
