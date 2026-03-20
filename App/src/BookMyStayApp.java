@@ -1,126 +1,144 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * =========================================================================
- * CLASS - Reservation
- * =========================================================================
- */
-class Reservation {
-    private String guestName;
-    private String roomType;
-
-    public Reservation(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
-    }
-
-    public String getGuestName() { return guestName; }
-    public String getRoomType() { return roomType; }
-}
-
-/**
- * =========================================================================
- * CLASS - RoomInventory
- * =========================================================================
- */
-class RoomInventory {
-    // Conceptually updates available counts
-    public void updateInventory(String roomType, int change) {
-        // In a full system, this would decrement the database count
-    }
-}
-
-/**
- * =========================================================================
- * CLASS - RoomAllocationService
- * =========================================================================
+ * =====================================================================
+ * CLASS - Service
+ * =====================================================================
  *
- * Use Case 6: Reservation Confirmation & Room Allocation
+ * Use Case 7: Add-On Service Selection
  *
  * Description:
- * This class is responsible for confirming
- * booking requests and assigning rooms.
+ * This class represents an optional service
+ * that can be added to a confirmed reservation.
  *
- * It ensures:
- * - Each room ID is unique
- * - Inventory is updated immediately
- * - No room is double-booked
+ * Examples:
+ * - Breakfast
+ * - Spa
+ * - Airport Pickup
  *
- * @version 6.0
+ * @version 7.0
  */
-class RoomAllocationService {
-    // Tracks overall unique IDs to prevent double-booking
-    private Set<String> allocatedRoomIds;
-    // Tracks IDs per type to handle sequential numbering (e.g., Single-1, Single-2)
-    private Map<String, Integer> roomTypeCounters;
+class AddOnService {
+    /** Name of the service. */
+    private String serviceName;
 
-    public RoomAllocationService() {
-        this.allocatedRoomIds = new HashSet<>();
-        this.roomTypeCounters = new HashMap<>();
-    }
+    /** Cost of the service. */
+    private double cost;
 
     /**
-     * Confirms a booking, generates a unique ID, and updates inventory.
+     * Creates a new add-on service.
+     *
+     * @param serviceName name of the service
+     * @param cost cost of the service
      */
-    public void allocateRoom(Reservation reservation, RoomInventory inventory) {
-        String type = reservation.getRoomType();
-        String roomId = generateRoomId(type);
-
-        // Mark as allocated
-        allocatedRoomIds.add(roomId);
-
-        // Update inventory immediately (decrements by 1)
-        inventory.updateInventory(type, -1);
-
-        // Specific output format for confirmation
-        System.out.println("Booking confirmed for Guest: " + reservation.getGuestName() +
-                ", Room ID: " + roomId);
+    public AddOnService(String serviceName, double cost) {
+        this.serviceName = serviceName;
+        this.cost = cost;
     }
 
-    /**
-     * Generates a unique room ID based on the room type.
-     */
-    private String generateRoomId(String roomType) {
-        int nextNumber = roomTypeCounters.getOrDefault(roomType, 0) + 1;
-        String newId = roomType + "-" + nextNumber;
+    /** @return service name */
+    public String getServiceName() {
+        return serviceName;
+    }
 
-        // Ensure absolute uniqueness
-        while (allocatedRoomIds.contains(newId)) {
-            nextNumber++;
-            newId = roomType + "-" + nextNumber;
-        }
-
-        roomTypeCounters.put(roomType, nextNumber);
-        return newId;
+    /** @return service cost */
+    public double getCost() {
+        return cost;
     }
 }
 
 /**
- * =========================================================================
+ * =====================================================================
+ * CLASS - AddOnServiceManager
+ * =====================================================================
+ *
+ * Description:
+ * This class manages optional services associated with confirmed reservations.
+ * It uses a Map to link Reservation IDs to a List of selected services.
+ *
+ * @version 7.0
+ */
+class AddOnServiceManager {
+    /**
+     * Maps reservation ID to selected services.
+     * Key -> Reservation ID (e.g., "Single-1")
+     * Value -> List of selected AddOnService objects
+     */
+    private Map<String, List<AddOnService>> servicesByReservation;
+
+    /** Initializes the service manager. */
+    public AddOnServiceManager() {
+        servicesByReservation = new HashMap<>();
+    }
+
+    /**
+     * Attaches a service to a reservation.
+     *
+     * @param reservationId confirmed reservation ID
+     * @param service add-on service to be added
+     */
+    public void addService(String reservationId, AddOnService service) {
+        servicesByReservation.computeIfAbsent(reservationId, k -> new ArrayList<>());
+        servicesByReservation.get(reservationId).add(service);
+    }
+
+    /**
+     * Calculates total add-on cost for a specific reservation.
+     *
+     * @param reservationId reservation ID to calculate for
+     * @return total service cost for that ID
+     */
+    public double calculateTotalServiceCost(String reservationId) {
+        List<AddOnService> services = servicesByReservation.get(reservationId);
+        if (services == null) return 0.0;
+
+        double total = 0.0;
+        for (AddOnService s : services) {
+            total += s.getCost();
+        }
+        return total;
+    }
+}
+
+/**
+ * =====================================================================
  * MAIN CLASS - BookMyStayApp
- * =========================================================================
+ * =====================================================================
+ *
+ * Description:
+ * Driver class demonstrating the Add-On Service Selection process.
+ * Links services like Spa and Breakfast to an existing Reservation ID.
+ *
+ * @version 7.0
  */
 public class BookMyStayApp {
 
+    /**
+     * Application entry point.
+     *
+     * @param args Command-line arguments
+     */
     public static void main(String[] args) {
-        System.out.println("Room Allocation Processing\n");
+        // Initialize manager
+        AddOnServiceManager manager = new AddOnServiceManager();
 
-        // 1. Initialize Service and Inventory
-        RoomAllocationService service = new RoomAllocationService();
-        RoomInventory inventory = new RoomInventory();
+        // Target Reservation ID (Assumed from Use Case 6 output)
+        String resId = "Single-1";
 
-        // 2. Setup FIFO Queue for booking requests
-        Queue<Reservation> bookingRequests = new LinkedList<>();
+        // Create and add services based on requirements
+        manager.addService(resId, new AddOnService("Spa", 1000.0));
+        manager.addService(resId, new AddOnService("Breakfast", 500.0));
 
-        // 3. Add requests in order
-        bookingRequests.add(new Reservation("Abhi", "Single"));
-        bookingRequests.add(new Reservation("Subha", "Single"));
-        bookingRequests.add(new Reservation("Vanmathi", "Suite"));
+        // Calculate the total additional cost
+        double totalCost = manager.calculateTotalServiceCost(resId);
 
-        // 4. Process the queue (First-In, First-Out)
-        while (!bookingRequests.isEmpty()) {
-            Reservation request = bookingRequests.poll();
-            service.allocateRoom(request, inventory);
-        }
+        // Print final status output
+        System.out.println("Add-On Service Selection");
+        System.out.println("-------------------------");
+        System.out.println("Reservation ID: " + resId);
+        System.out.println("Total Add-On Cost: " + totalCost);
     }
 }
