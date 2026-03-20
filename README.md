@@ -1,28 +1,23 @@
-Project: Centralized Hotel Room Inventory
-Overview
-This project implements Use Case 3: Centralized Room Inventory Management. It is designed using the "Single Source of Truth" pattern, ensuring that room details (like price and size) and room availability are managed in one place without data duplication.
-Key Features
-Centralized Tracking: Uses a RoomInventory class to manage all availability counts.
-Separation of Concerns: Room objects handle static data, while the Inventory handles dynamic state.
-Efficient Data Storage: Uses a Java HashMap for quick room type lookups and updates.
-How to Run
-Requirement: Ensure you have Java (JDK) installed.
-Compile:
-bash
-javac UseCase3InventorySetup.java
-Use code with caution.
+Project Overview
+The Room Search & Availability Check module is a core component of the BookMyStay application, designed to provide guests with a seamless way to browse available accommodations.
+By integrating real-time inventory tracking with detailed room descriptions and pricing, the system ensures that users only see options that are currently in stock. 
+This module follows a strict "read-only" architecture, meaning it retrieves and displays information from the central database without risking accidental data modification during the search process.
+Technical Implementation
+From a technical standpoint, the application leverages a decoupled design where room attributes (like pricing and descriptions) are managed separately from their physical availability counts.
+This is achieved through the RoomSearchService, which queries a dynamic RoomInventory map to validate stock levels before presenting details to the user via the Room objects.
+This approach not only ensures data integrity but also provides a scalable foundation for adding more complex features in the future, such as date-range filtering or amenity-based sorting.
 
-Execute:
-bash
-java UseCase3InventorySetup
-Use code with caution.
 
-Expected Output
-The program will display the current status of the hotel inventory:
-Single Room: 5 available
-Double Room: 3 available
-Suite Room: 2 available
-Author Information
-Module: Use Case 3
-Version: 3.1
-Author: KANDURU-SUDHEER
+
+
+
+
+
+
+
+
+
+
+
+
+
