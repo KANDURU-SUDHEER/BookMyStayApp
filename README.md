@@ -1,61 +1,56 @@
-This README provides an overview of the implementation for Use Case 9, focusing on how the system ensures reliability through structured validation and proactive error handling.
+This README provides a comprehensive guide for Use Case 11, focusing on the transition from a single-user system to a multi-threaded environment.
 ------------------------------
-## Use Case 9: Error Handling & Validation
-Goal: Strengthen system reliability by introducing structured validation and error handling, ensuring that invalid inputs and inconsistent states are detected and handled early.
+## Use Case 11: Concurrent Booking Simulation
+Goal: Demonstrate how the system maintains integrity and prevents "double-booking" when multiple guests attempt to book rooms at the exact same time.
+## Overview
+In a real-world scenario, a booking system isn't used by one person at a time. Hundreds of requests may arrive simultaneously. Without proper Thread Safety, the system could suffer from Race Conditions, where two users are assigned the same room because the system hasn't finished updating the inventory for the first user before processing the second.
 ## Key Concepts Implemented
 
-* Fail-Fast Design: The system detects errors at the earliest possible point (during input validation) and stops further processing to avoid cascading failures.
-* Custom Exceptions: Uses the domain-specific InvalidBookingException to provide clear, human-readable error causes rather than generic system crashes.
-* Guarding System State: Validation checks are performed before any inventory updates or queue additions, ensuring the system remains in a consistent state.
-* Graceful Failure Handling: Errors are caught and communicated clearly to the user via the try-catch block, allowing the application to remain stable and continue running.
+* Thread Safety: Ensuring shared resources (Inventory and Queue) behave correctly when accessed by multiple threads.
+* Critical Sections: Using the synchronized keyword to protect blocks of code that modify shared data.
+* Shared Mutable State: Managing the RoomInventory and BookingRequestQueue across different worker threads (t1 and t2).
+* Atomicity: Ensuring the "Check Availability -> Decrement Inventory" process happens as a single, uninterrupted operation.
 
 ------------------------------
-## Components
+## System Architecture
 
-| Class | Responsibility |
+| Component | Responsibility |
 |---|---|
-| InvalidBookingException | Custom exception class for booking-specific errors. |
-| RoomInventory | Manages room types and availability counts. |
-| ReservationValidator | The "Guard" logic that validates input against system rules. |
-| BookingRequestQueue | Processes the booking only after it passes validation. |
-| BookingSystemApp | The main entry point that coordinates the Actor (Guest) and the System. |
+| RoomInventory | The Shared Resource. Contains a synchronized method to safely decrement room counts. |
+| BookingRequestQueue | A synchronized list of guest names waiting for a room. |
+| AllocationService | Contains the core logic for matching a guest to a room. |
+| ConcurrentBookingProcessor | Implements Runnable. This is the "Worker" that runs on a background thread to process the queue. |
+| UseCase11ThreadSafety | The Driver Class. It initializes threads, starts them, and uses .join() to synchronize the final report. |
 
 ------------------------------
 ## How to Run
 
-1. Save the Code: Copy the provided code into a file named BookingSystemApp.java.
+1. File Name: Ensure your file is named UseCase11ThreadSafety.java.
 2. Compile:
 
-javac BookingSystemApp.java
+javac UseCase11ThreadSafety.java
 
 3. Execute:
 
-java BookingSystemApp
+java UseCase11ThreadSafety
 
    
 ------------------------------
-## Example Scenarios## Scenario 1: Success (Happy Path)
+## Expected Behavior
+When you run this simulation with 2 rooms and 5 guests:
 
-* Input: Guest: "Alice", Room: "Deluxe"
-* Result: Validation passes, and the booking is added to the queue.
-
-## Scenario 2: Invalid Room Type
-
-* Input: Guest: "Bob", Room: "Penthouse"
-* Result: InvalidBookingException is thrown: "Invalid room type: Penthouse". System state is preserved.
-
-## Scenario 3: No Availability
-
-* Input: Guest: "Charlie", Room: "Suite"
-* Result: InvalidBookingException is thrown: "No availability for room type: Suite". (Note: Suite count starts at 0).
+1. Thread-01 and Thread-02 will start simultaneously.
+2. They will "compete" to pull guests from the queue.
+3. Only the first two guests to reach the allocateRoom logic will succeed.
+4. The remaining three guests will be safely denied because the inventory count is protected.
+5. The final inventory count will be 0 (never negative).
 
 ------------------------------
-## Benefits of this Approach
+## Benefits of this Design
 
-* No Silent Failures: Errors are loud and clear, making debugging significantly easier.
-* Data Integrity: Prevents the inventory from ever reaching negative values or corrupted states.
-* User Experience: Provides immediate, helpful feedback to the guest when an input error occurs.
+* Scalability: The system can now handle multiple processors working in parallel.
+* Reliability: Eliminates the risk of "Double Booking," which is critical for business reputation.
+* Predictability: The system state remains consistent regardless of how many threads are added.
 
 ------------------------------
-
 
