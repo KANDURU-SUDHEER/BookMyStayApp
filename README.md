@@ -1,56 +1,41 @@
-This README provides a comprehensive guide for Use Case 11, focusing on the transition from a single-user system to a multi-threaded environment.
+This README document outlines the implementation of Use Case 12, focusing on how the "Book My Stay" application transitions from a temporary, in-memory tool to a durable, stateful system.
 ------------------------------
-## Use Case 11: Concurrent Booking Simulation
-Goal: Demonstrate how the system maintains integrity and prevents "double-booking" when multiple guests attempt to book rooms at the exact same time.
-## Overview
-In a real-world scenario, a booking system isn't used by one person at a time. Hundreds of requests may arrive simultaneously. Without proper Thread Safety, the system could suffer from Race Conditions, where two users are assigned the same room because the system hasn't finished updating the inventory for the first user before processing the second.
+## Use Case 12: Data Persistence & System Recovery
+Goal: Ensure that critical system data (Room Inventory and Booking History) survives application restarts by storing it in a durable physical file.
 ## Key Concepts Implemented
 
-* Thread Safety: Ensuring shared resources (Inventory and Queue) behave correctly when accessed by multiple threads.
-* Critical Sections: Using the synchronized keyword to protect blocks of code that modify shared data.
-* Shared Mutable State: Managing the RoomInventory and BookingRequestQueue across different worker threads (t1 and t2).
-* Atomicity: Ensuring the "Check Availability -> Decrement Inventory" process happens as a single, uninterrupted operation.
+* Stateful Design: Unlike previous versions where data reset to defaults every time you clicked "Run," this version "remembers" exactly how many rooms were left from the last session.
+* Serialization: The process of converting the in-memory HashMap of rooms into a structured text format (RoomType:Count) that can be written to a disk.
+* Deserialization: The recovery process where the system reads the text file during startup and reconstructs the HashMap to its exact previous state.
+* Failure Tolerance: The system is designed to handle "First Runs" (where no data file exists yet) or corrupted files gracefully by falling back to default values instead of crashing.
 
 ------------------------------
 ## System Architecture
 
 | Component | Responsibility |
 |---|---|
-| RoomInventory | The Shared Resource. Contains a synchronized method to safely decrement room counts. |
-| BookingRequestQueue | A synchronized list of guest names waiting for a room. |
-| AllocationService | Contains the core logic for matching a guest to a room. |
-| ConcurrentBookingProcessor | Implements Runnable. This is the "Worker" that runs on a background thread to process the queue. |
-| UseCase11ThreadSafety | The Driver Class. It initializes threads, starts them, and uses .join() to synchronize the final report. |
+| UseCase12DataPersistenceRecovery | The Main Entry Point. Orchestrates the Load -> Process -> Save lifecycle. |
+| PersistenceService | The Data Handler. Manages all file I/O operations (FileRead, FileWrite). |
+| RoomInventory | The Data Model. Holds the live count of rooms currently in memory. |
+| inventory_state.txt | The Persistent Store. A simple text file that acts as the system's "memory." |
 
 ------------------------------
-## How to Run
+## How to Run & Test Recovery
 
-1. File Name: Ensure your file is named UseCase11ThreadSafety.java.
-2. Compile:
-
-javac UseCase11ThreadSafety.java
-
-3. Execute:
-
-java UseCase11ThreadSafety
-
-   
-------------------------------
-## Expected Behavior
-When you run this simulation with 2 rooms and 5 guests:
-
-1. Thread-01 and Thread-02 will start simultaneously.
-2. They will "compete" to pull guests from the queue.
-3. Only the first two guests to reach the allocateRoom logic will succeed.
-4. The remaining three guests will be safely denied because the inventory count is protected.
-5. The final inventory count will be 0 (never negative).
+1. Compile and Run the application for the first time.
+* Result: The system won't find a file, will load 10 Deluxe rooms, process a booking, and save 9 to the file.
+2. Close the Program.
+3. Run the application again.
+* Result: The system will detect inventory_state.txt, load 9 Deluxe rooms, and decrement it to 8.
+4. Verification: Check the inventory_state.txt file in your project folder to see the raw data being stored.
 
 ------------------------------
-## Benefits of this Design
+## Benefits of this Approach
 
-* Scalability: The system can now handle multiple processors working in parallel.
-* Reliability: Eliminates the risk of "Double Booking," which is critical for business reputation.
-* Predictability: The system state remains consistent regardless of how many threads are added.
+* Durable Operations: Real-world hotel systems cannot afford to lose bookings if the power goes out; this use case provides that safety net.
+* Production Alignment: This implementation mimics how professional software interacts with databases, providing a smooth conceptual bridge for future learning.
+* Auditability: Because the data is stored in a plain-text file, system administrators can easily audit or manually fix inventory if needed.
 
 ------------------------------
+
 
