@@ -1,80 +1,118 @@
-/**
- * =====================================================================
- * PROJECT: Hotel Booking System - Use Case 8
- * =====================================================================
- * This program implements the "Booking History and Reporting"
- * requirements shown in the documentation image.
- *
- * CORE FEATURES:
- * 1. Ordered Storage: Maintains the sequence of confirmed bookings.
- * 2. Formatted Output: Generates a human-readable summary report.
- * 3. Separation of Concerns: Uses a dedicated class for booking records.
- */
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Represents a single confirmed reservation record.
+ * ===========================================================================
+ * USE CASE 9: ERROR HANDLING & VALIDATION
+ * ===========================================================================
+ * This code demonstrates:
+ * 1. Fail-Fast Design (Detecting errors early)
+ * 2. Guarding System State (Preventing invalid inventory changes)
+ * 3. Custom Exceptions (Clear, domain-specific error reporting)
  */
-class BookingRecord {
-    // Fields to store guest details and room selection
-    private String guestName;
-    private String roomType;
 
-    /**
-     * Constructor to initialize a new booking record.
-     * @param guestName The name of the guest
-     * @param roomType The category of room (Single, Double, Suite)
-     */
-    public BookingRecord(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
-    }
-
-    /**
-     * Overriding toString to match the exact report format in the image:
-     * "Guest: [Name], Room Type: [Type]"
-     */
-    @Override
-    public String toString() {
-        return "Guest: " + guestName + ", Room Type: " + roomType;
+// 1. CUSTOM EXCEPTION: Represents domain-specific booking errors
+class InvalidBookingException extends Exception {
+    public InvalidBookingException(String message) {
+        super(message);
     }
 }
 
-/**
- * Main application class to manage and report booking history.
- */
+// 2. ROOM INVENTORY: Stores current state of rooms
+class RoomInventory {
+    private Map<String, Integer> inventory = new HashMap<>();
+
+    public RoomInventory() {
+        // Initial setup: 2 Deluxe rooms, 0 Suites (to test "No Availability")
+        inventory.put("Deluxe", 2);
+        inventory.put("Suite", 0);
+    }
+
+    public boolean isValidRoomType(String type) {
+        return inventory.containsKey(type);
+    }
+
+    public int getAvailableCount(String type) {
+        return inventory.getOrDefault(type, 0);
+    }
+}
+
+// 3. BOOKING QUEUE: Handles successful requests
+class BookingRequestQueue {
+    public void addRequest(String guest, String room) {
+        System.out.println("Processing... [Queueing request for " + guest + " in " + room + "]");
+    }
+}
+
+// 4. RESERVATION VALIDATOR: The "Guard" that prevents invalid states
+class ReservationValidator {
+    public void validate(String guestName, String roomType, RoomInventory inventory)
+            throws InvalidBookingException {
+
+        // Check for empty inputs (Input Validation)
+        if (guestName == null || guestName.trim().isEmpty()) {
+            throw new InvalidBookingException("Guest name cannot be empty.");
+        }
+
+        // Check if the room type even exists (System Constraints)
+        if (!inventory.isValidRoomType(roomType)) {
+            throw new InvalidBookingException("Invalid room type: " + roomType);
+        }
+
+        // Check for availability (Guarding System State)
+        if (inventory.getAvailableCount(roomType) <= 0) {
+            throw new InvalidBookingException("No availability for room type: " + roomType);
+        }
+
+        // If logic reaches here, state is valid!
+    }
+}
+
+// 5. MAIN APPLICATION CLASS
 public class BookMyStayApp {
 
-    /**
-     * Entry point of the application.
-     */
     public static void main(String[] args) {
+        // Display application header
+        System.out.println("--- Hotel Booking Validation System ---");
 
-        // --- 1. DATA COLLECTION PHASE ---
-        // Using an ArrayList to maintain the "Audit Trail" (chronological order)
-        List<BookingRecord> history = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
 
-        // Adding the specific data points from the image
-        history.add(new BookingRecord("Abhi", "Single"));
-        history.add(new BookingRecord("Subha", "Double"));
-        history.add(new BookingRecord("Vanmathi", "Suite"));
+        // Initialize required components
+        RoomInventory inventory = new RoomInventory();
+        ReservationValidator validator = new ReservationValidator();
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        // --- 2. REPORT GENERATION PHASE ---
-        // Printing the primary system header
-        System.out.println("Booking History and Reporting");
+        try {
+            // Collect input from the Guest (Actor)
+            System.out.print("Enter Guest Name: ");
+            String guestName = scanner.nextLine();
 
-        // Printing a line break for visual clarity as seen in the layout
-        System.out.println();
+            System.out.print("Enter Room Type (Deluxe/Suite): ");
+            String roomType = scanner.nextLine();
 
-        // Printing the specific report title
-        System.out.println("Booking History Report");
+            // STEP 1: Structured Validation (Fail-Fast Design)
+            // The validator throws an exception if ANYTHING is wrong.
+            validator.validate(guestName, roomType, inventory);
 
-        // --- 3. OUTPUT PHASE ---
-        // Iterating through the history list to display each record
-        for (BookingRecord record : history) {
-            System.out.println(record);
+            // STEP 2: Logic processing (Only occurs if validation passes)
+            bookingQueue.addRequest(guestName, roomType);
+            System.out.println("SUCCESS: Your booking has been processed safely.");
+
+        } catch (InvalidBookingException e) {
+            // STEP 3: Handle domain-specific validation errors (Graceful Failure)
+            // Instead of crashing, we show a meaningful failure message.
+            System.out.println("\n[!] BOOKING FAILED: " + e.getMessage());
+            System.out.println("Status: The system prevented an invalid state change.");
+
+        } catch (Exception e) {
+            // Catch-all for any unexpected system errors
+            System.out.println("Unexpected Error: " + e.getMessage());
+
+        } finally {
+            // STEP 4: Cleanup resources
+            scanner.close();
+            System.out.println("--- Session Closed ---");
         }
     }
 }
